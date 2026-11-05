@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "workshop",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "workshop",
+    "type": "workshop",
+    "width": 1100,
+    "height": 1000,
+    "camera": [
+      0,
+      1,
+      10.6
+    ],
+    "target": [
+      0,
+      0.1,
+      0
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ]
+  }
+}

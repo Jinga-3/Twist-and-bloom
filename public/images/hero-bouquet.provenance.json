@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "bouquet",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "hero-bouquet",
+    "type": "bouquet",
+    "width": 1100,
+    "height": 1100,
+    "camera": [
+      0,
+      0.6,
+      9.4
+    ],
+    "target": [
+      0,
+      0.3,
+      0
+    ],
+    "rotation": [
+      0.035,
+      -0.14,
+      -0.13
+    ]
+  }
+}

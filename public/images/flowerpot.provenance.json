@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "flowerpot",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "flowerpot",
+    "type": "flowerpot",
+    "width": 800,
+    "height": 900,
+    "camera": [
+      0,
+      0.8,
+      8.8
+    ],
+    "target": [
+      0,
+      0.23,
+      0
+    ],
+    "rotation": [
+      0.015,
+      -0.17,
+      -0.045
+    ]
+  }
+}

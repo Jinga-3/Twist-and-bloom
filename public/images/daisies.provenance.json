@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "daisies",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "daisies",
+    "type": "daisies",
+    "width": 800,
+    "height": 900,
+    "camera": [
+      0,
+      0.6,
+      9.7
+    ],
+    "target": [
+      0,
+      0.1,
+      0
+    ],
+    "rotation": [
+      0.01,
+      0.16,
+      0.09
+    ]
+  }
+}

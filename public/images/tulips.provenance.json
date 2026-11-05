@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "tulips",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "tulips",
+    "type": "tulips",
+    "width": 800,
+    "height": 900,
+    "camera": [
+      0,
+      0.6,
+      9.5
+    ],
+    "target": [
+      0,
+      0.12,
+      0
+    ],
+    "rotation": [
+      0.06,
+      -0.12,
+      -0.14
+    ]
+  }
+}

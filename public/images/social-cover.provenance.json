@@ -1,0 +1,7 @@
+{
+  "origin": "Original branded composition of procedural Three.js illustration and self-hosted Bricolage Grotesque typography",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "dimensions": "1200x630",
+  "note": "Illustrative pipe-cleaner creations, not photographs of real studio stock."
+}
