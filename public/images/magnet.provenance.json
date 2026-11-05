@@ -1,0 +1,28 @@
+{
+  "origin": "Original procedural Three.js illustration",
+  "source": "src/lib/craft.ts",
+  "renderer": "scripts/render-assets.mjs",
+  "subject": "magnet",
+  "note": "Illustrative pipe-cleaner creation, not a photograph of real studio stock.",
+  "render": {
+    "name": "magnet",
+    "type": "magnet",
+    "width": 800,
+    "height": 900,
+    "camera": [
+      0,
+      0.65,
+      8.4
+    ],
+    "target": [
+      0,
+      0.11,
+      0
+    ],
+    "rotation": [
+      0.015,
+      -0.32,
+      0.08
+    ]
+  }
+}

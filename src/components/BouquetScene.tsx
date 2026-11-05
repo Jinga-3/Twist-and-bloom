@@ -18,7 +18,7 @@ export default function BouquetScene({ paused, color }: { paused: boolean; color
     const bouquet = makeCreation('bouquet')
     scene.add(bouquet)
     bouquet.rotation.set(0.035, -0.14, -0.13)
-    let mx = 0, my = 0, frame = 0, visible = true, dragging = false, dragX = 0, offset = 0
+    let mx = 0, my = 0, frame = 0, visible = true, dragging = false, dragX = 0, offset = 0, needsRender = true
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
     const pointer = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect()
@@ -37,6 +37,7 @@ export default function BouquetScene({ paused, color }: { paused: boolean; color
       renderer.setSize(host.clientWidth, host.clientHeight, false)
       camera.aspect = host.clientWidth / host.clientHeight
       camera.updateProjectionMatrix()
+      needsRender = true
     })
     resize.observe(host)
     const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting }, { rootMargin: '80px' })
@@ -48,23 +49,29 @@ export default function BouquetScene({ paused, color }: { paused: boolean; color
     canvas.addEventListener('keydown', keydown)
     const contextLost = (e: Event) => { e.preventDefault(); host.dataset.fallback = 'true' }
     canvas.addEventListener('webglcontextlost', contextLost)
-    let last = 0, elapsed = 0, lastColor = ''
+    let last = 0, elapsed = 0, lastColor = '', wasMotion = false
     function render(now: number) {
       frame = requestAnimationFrame(render)
       if (!visible || document.hidden || now - last < 32) return
       const delta = Math.min((now - last) / 1000, 0.05)
       last = now
       const motion = !stateRef.current.paused && !reduce.matches
+      if (motion !== wasMotion) { needsRender = true; wasMotion = motion }
       if (motion) elapsed += delta
       const targetY = -0.14 + offset + (motion ? mx + Math.sin(elapsed * 0.38) * 0.075 : 0)
+      const targetX = (motion ? my : 0) + 0.035
+      const changing = Math.abs(targetY - bouquet.rotation.y) > 0.0001 || Math.abs(targetX - bouquet.rotation.x) > 0.0001
       bouquet.rotation.y += (targetY - bouquet.rotation.y) * 0.075
-      bouquet.rotation.x += ((motion ? my : 0) + 0.035 - bouquet.rotation.x) * 0.05
+      bouquet.rotation.x += (targetX - bouquet.rotation.x) * 0.05
       bouquet.position.y = motion ? Math.sin(elapsed * 0.7) * 0.045 : 0
       if (lastColor !== stateRef.current.color) {
         recolorPinkFibres(bouquet, stateRef.current.color)
         lastColor = stateRef.current.color
+        needsRender = true
       }
+      if (!motion && !changing && !needsRender) return
       renderer.render(scene, camera)
+      needsRender = false
       host.dataset.ready = 'true'
     }
     frame = requestAnimationFrame(render)

@@ -35,3 +35,7 @@ One warning: a spring easing on tactile hover details. Retained intentionally fo
 ## Build path
 
 Code-led, original procedural Three.js artwork. No generated UI comp was used or approved.
+
+## FORM seed record
+
+The direction seed command ran successfully on this build with key `67361ddc`, scope `direction`, mode `persuade`, assigned index `7`, catalogue pool `c3b204a1eed6`. This records the actual tool output; no visual decision board or approved comp was produced. The implemented flower-studio direction was stated in the conversation and follows the user's delegated design choices and playful 3D brief. Finish review uses the written direction contract and actual screenshots as its evidence.

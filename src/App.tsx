@@ -1,10 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Heart, Menu, Minus, MoveUpRight, Pause, Play, Plus, Scissors, X } from 'lucide-react'
 import { creations, faqs, studio, type Creation } from './content'
 import EnquiryDialog, { type Enquiry } from './components/EnquiryDialog'
 import type { BouquetPalette } from './lib/craft'
 
 const BouquetScene = lazy(() => import('./components/BouquetScene'))
+const categories = ['All creations', 'Flowers', 'Flowerpots', 'Fridge magnets', 'Little joys']
 
 function Flower({ className = '', petals = 6 }: { className?: string; petals?: number }) {
   return <svg className={className} viewBox="0 0 80 80" fill="none" aria-hidden="true">{Array.from({ length: petals }, (_, i) => <ellipse key={i} cx="40" cy="23" rx="12" ry="21" fill="currentColor" transform={`rotate(${i * 360 / petals} 40 40)`} />)}<circle cx="40" cy="40" r="10" fill="var(--color-yellow)" /></svg>
@@ -12,22 +13,25 @@ function Flower({ className = '', petals = 6 }: { className?: string; petals?: n
 
 function ProductDialog({ product, onClose, onEnquire }: { product: Creation; onClose: () => void; onEnquire: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current!
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null
     el.showModal()
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = previous; el.close() }
+    return () => { document.body.style.overflow = previous; el.close(); if (trigger?.isConnected) trigger.focus({ preventScroll: true }) }
   }, [])
   return <dialog className="product-dialog" ref={ref} onCancel={onClose} onClick={e => { const r = e.currentTarget.getBoundingClientRect(); if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) onClose() }} aria-labelledby="product-title">
     <button className="icon-button dialog-close" onClick={onClose} aria-label="Close creation"><X size={21} /></button>
     <div className={`product-dialog-image surface-${product.color}`}><img src={product.image} alt={product.name} width="800" height="900" /></div>
-    <div className="product-dialog-copy"><span className="small-label">A little inspiration</span><h2 id="product-title">{product.name}</h2><p>{product.story}</p><span className="handmade-note"><Heart size={16} /> Handmade, one happy twist at a time.</span><button className="button button-dark" onClick={onEnquire}>Make it my own <ArrowUpRight size={18} /></button><p className="form-note">An illustrated idea from our little world. Details and pricing are confirmed with the studio.</p></div>
+    <div className="product-dialog-copy"><h2 id="product-title">{product.name}</h2><p>{product.story}</p><span className="handmade-note"><Heart size={16} /> Handmade, one happy twist at a time.</span><button className="button button-dark" onClick={onEnquire}>Make it my own <ArrowUpRight size={18} /></button><p className="form-note">An illustrated idea from our little world. Details and pricing are confirmed with the studio.</p></div>
   </dialog>
 }
 
 export default function App() {
   const [menu, setMenu] = useState(false)
+  const menuToggle = useRef<HTMLButtonElement>(null)
+  const savedFilter = useRef<HTMLButtonElement>(null)
   const [paused, setPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [palette, setPalette] = useState<BouquetPalette>('rose')
   const [filter, setFilter] = useState('All creations')
@@ -44,15 +48,16 @@ export default function App() {
   }, [toast])
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(false) }
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && menu) { menuToggle.current?.focus(); setMenu(false) } }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [])
+  }, [menu])
 
   function favorite(product: Creation) {
     const exists = saved.includes(product.id)
     const next = exists ? saved.filter(id => id !== product.id) : [...saved, product.id]
     setSaved(next)
+    if (exists && filter === 'Saved') requestAnimationFrame(() => { const nextButton = document.querySelector<HTMLButtonElement>('.product-grid .favorite-button'); (nextButton || savedFilter.current)?.focus() })
     try { localStorage.setItem('twist-bloom-favourites', JSON.stringify(next)) } catch { /* Favourites still work for this visit. */ }
     setToast(exists ? 'Removed from your favourites.' : 'A little joy saved to your favourites.')
   }
@@ -67,7 +72,7 @@ export default function App() {
       <a className="wordmark" href="#" aria-label="Twist and Bloom home"><Flower className="brand-flower" /><span>twist<span className="wordmark-and">&</span>bloom<span className="wordmark-dot">.</span></span></a>
       <nav className="desktop-nav" aria-label="Main navigation">{nav()}</nav>
       <button className="header-contact" onClick={() => setEnquiry({ kind: 'hello' })}>Let’s talk <ArrowUpRight size={17} /></button>
-      <button className="icon-button menu-toggle" aria-label={menu ? 'Close navigation' : 'Open navigation'} aria-expanded={menu} aria-controls="mobile-nav" onClick={() => setMenu(!menu)}>{menu ? <X /> : <Menu />}</button>
+      <button ref={menuToggle} className="icon-button menu-toggle" aria-label={menu ? 'Close navigation' : 'Open navigation'} aria-expanded={menu} aria-controls="mobile-nav" onClick={() => setMenu(!menu)}>{menu ? <X /> : <Menu />}</button>
       {menu && <nav id="mobile-nav" className="mobile-nav" aria-label="Mobile navigation">{nav(true)}<button onClick={() => { setMenu(false); setEnquiry({ kind: 'hello' }) }}>Let’s talk <ArrowUpRight size={20} /></button></nav>}
     </header>
 
@@ -75,7 +80,7 @@ export default function App() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <h1 id="hero-title">Little things.<br />Big happy<br /><span>feelings<svg className="feeling-underline" viewBox="0 0 390 20" aria-hidden="true"><path d="M5 12C98 1 277 1 382 8M48 18C162 10 291 11 356 14" /></svg>.</span></h1>
-          <p>We turn fuzzy little pipe cleaners into flowers,<br className="desktop-break" /> keepsakes, and reasons to smile.<br className="desktop-break" /> A little handmade happiness, just for you.</p>
+          <p>Flowers, flowerpots, and little fridge magnets.<br className="desktop-break" /> All made from a fuzzy stem and a happy thought.<br className="desktop-break" /> A little handmade happiness, just for you.</p>
           <a className="button button-dark hero-cta" href="#creations">Explore our little world <ArrowUpRight size={19} /></a>
           <a className="hero-secondary" href="#workshops">Or, come make a little magic with us <ArrowRight size={16} /></a>
           <div className="hero-footnote"><span className="hand-icon"><Heart size={17} /></span>Made by hand. Kept by heart.</div>
@@ -94,8 +99,8 @@ export default function App() {
       <div className="joy-ribbon" aria-label="Handmade, heart full, a little out of the ordinary"><div className="ribbon-track">{[0, 1].map(i => <div className="ribbon-set" key={i} aria-hidden={i === 1}><span>A LITTLE FUZZ, A LOT OF LOVE</span><Flower /><span>HAPPINESS IS HANDMADE</span><Flower /><span>PERFECTLY IMPERFECT</span><Flower /></div>)}</div></div>
 
       <section id="creations" className="creations section-wrap" aria-labelledby="creations-title">
-        <div className="section-heading"><h2 id="creations-title">Say hello to<br />your next little <span className="accent-word">joy.</span></h2><div className="section-intro"><p>Flowers that stay. Tiny friends with personality.<br />A few possibilities from our colourful little world.</p><span>Dreamed up in colour. Twisted into life.</span></div></div>
-        <div className="collection-toolbar"><div className="collection-filters" role="group" aria-label="Filter creations">{['All creations', 'Flowers', 'Little joys'].map(item => <button key={item} className={filter === item ? 'active' : ''} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><button className={`saved-filter ${filter === 'Saved' ? 'active' : ''}`} onClick={() => setFilter(filter === 'Saved' ? 'All creations' : 'Saved')} aria-pressed={filter === 'Saved'}><Heart size={16} /><span>Saved{saved.length > 0 && ` (${saved.length})`}</span></button></div>
+        <div className="section-heading"><h2 id="creations-title">Say hello to<br />your next little <span className="accent-word">joy.</span></h2><div className="section-intro"><p>For your desk, your fridge, your favourite person.<br />A few possibilities from our colourful little world.</p><span>Dreamed up in colour. Twisted into life.</span></div></div>
+        <div className="collection-toolbar"><div className="collection-filters" role="group" aria-label="Filter creations">{categories.map(item => <button key={item} className={filter === item ? 'active' : ''} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><label className="mobile-collection-filter"><span className="sr-only">Show creations</span><select value={filter} onChange={e => setFilter(e.target.value)}>{[...categories, 'Saved'].map(item => <option key={item} value={item}>{item === 'Saved' ? 'My favourites' : item}</option>)}</select></label><button ref={savedFilter} className={`saved-filter ${filter === 'Saved' ? 'active' : ''}`} onClick={() => setFilter(filter === 'Saved' ? 'All creations' : 'Saved')} aria-pressed={filter === 'Saved'}><Heart size={16} /><span>Saved{saved.length > 0 && ` (${saved.length})`}</span></button></div>
         <div className="product-grid" aria-live="polite">
           {visible.map((p, i) => <article className="product-card" key={p.id} style={{ '--card-index': i } as React.CSSProperties}>
             <div className={`product-image surface-${p.color}`}><button className="product-image-button" onClick={() => setSelected(p)} aria-label={`Explore ${p.name}`}><img src={p.image} alt={p.name} width="800" height="900" loading="lazy" /><span className="product-explore">Take a closer look <ArrowUpRight size={15} /></span></button><button className={`favorite-button ${saved.includes(p.id) ? 'is-saved' : ''}`} onClick={() => favorite(p)} aria-label={`${saved.includes(p.id) ? 'Unsave' : 'Save'} ${p.name}`} aria-pressed={saved.includes(p.id)}><Heart size={18} /></button>{p.id === 'bouquet' && <span className="product-tag">A forever kind of flower</span>}</div>

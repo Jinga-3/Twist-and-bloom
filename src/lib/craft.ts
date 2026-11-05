@@ -239,7 +239,7 @@ export function makeCreation(type: string) {
     }
     // A tiny cream bow on the pot echoes hand-finished gift details.
     const detail = new THREE.Group()
-    detail.position.set(-0.26, -0.88, 0.20)
+    detail.position.set(0, -0.91, 0.32)
     for (const direction of [-1, 1]) {
       tube(detail, [v(0, 0), v(direction * 0.18, 0.12), v(direction * 0.28, 0.02), v(direction * 0.12, -0.04), v(0, 0)], 0.026, craftColors.cream, 500)
       tube(detail, [v(0, 0), v(direction * 0.05, -0.12), v(direction * 0.13, -0.23)], 0.026, craftColors.cream, 500)

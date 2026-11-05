@@ -1,4 +1,4 @@
-import { chromium } from '@playwright/test'
+import { chromium, expect } from '@playwright/test'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 
 const baseURL = process.env.SITE_URL || 'http://127.0.0.1:5173'
@@ -14,9 +14,26 @@ try {
   await page.goto(baseURL, { waitUntil: 'networkidle' })
   await page.locator('h1').waitFor()
   await page.evaluate(() => document.fonts.ready)
-  assert(await page.locator('.product-card').count() === 4, 'All four creation ideas are visible')
+  await page.locator('.bouquet-render[data-ready="true"]').waitFor({ timeout: 30000 })
+  const canvas = page.locator('.bouquet-render canvas')
+  const roseImage = await canvas.screenshot()
+  await page.getByRole('button', { name: 'Lilac dream', exact: true }).click()
+  await expect.poll(async () => !(await canvas.screenshot()).equals(roseImage)).toBe(true)
+  assert(await page.getByRole('button', { name: 'Lilac dream', exact: true }).getAttribute('aria-pressed') === 'true', 'Colour mood changes the rendered bouquet')
+  await page.getByRole('button', { name: 'Rose pink', exact: true }).click()
+  await canvas.focus()
+  const frontImage = await canvas.screenshot()
+  await page.keyboard.press('ArrowLeft')
+  await expect.poll(async () => !(await canvas.screenshot()).equals(frontImage)).toBe(true)
+  assert(true, 'Keyboard arrows rotate the rendered bouquet')
+  await page.keyboard.press('Home')
+  assert(await page.locator('.product-card').count() === 6, 'All six creation ideas are visible')
   await page.getByRole('button', { name: 'Flowers', exact: true }).click()
   assert(await page.locator('.product-card').count() === 3, 'Flower filter shows only three flowers')
+  await page.getByRole('button', { name: 'Flowerpots', exact: true }).click()
+  assert(await page.locator('.product-card').count() === 1 && await page.getByRole('heading', { name: 'Happiness, potted' }).isVisible(), 'Flowerpots have a dedicated category')
+  await page.getByRole('button', { name: 'Fridge magnets', exact: true }).click()
+  assert(await page.locator('.product-card').count() === 1 && await page.getByRole('heading', { name: 'Fridge-side flowers' }).isVisible(), 'Flowerpot fridge magnets have a dedicated category')
   await page.getByRole('button', { name: 'Little joys', exact: true }).click()
   assert(await page.locator('.product-card').count() === 1, 'Little joys filter shows the bunny')
   await page.getByRole('button', { name: 'Save Your little desk buddy', exact: true }).click()
@@ -26,6 +43,10 @@ try {
   assert(await page.getByRole('button', { name: 'Unsave Your little desk buddy', exact: true }).getAttribute('aria-pressed') === 'true', 'Favourites survive a reload')
   await page.getByRole('button', { name: 'Explore The forever bouquet', exact: true }).click()
   assert(await page.locator('.product-dialog').isVisible(), 'Creation details open in a native dialog')
+  if (process.argv.includes('--capture')) {
+    mkdirSync('.impeccable/review', { recursive: true })
+    await page.screenshot({ path: '.impeccable/review/product-dialog.png', animations: 'disabled' })
+  }
   await page.getByRole('button', { name: 'Make it my own', exact: true }).click()
   assert(await page.locator('.enquiry-dialog').isVisible(), 'Creation enquiry carries through from its details')
   await page.getByRole('textbox', { name: 'Your name', exact: true }).fill(' ')
@@ -36,6 +57,7 @@ try {
   await page.getByRole('textbox', { name: 'Your name', exact: true }).fill('Test Visitor')
   await page.getByRole('button', { name: 'Put my enquiry together', exact: true }).click()
   const note = await page.getByRole('textbox', { name: 'Your prepared enquiry' }).inputValue()
+  assert(await page.getByRole('textbox', { name: 'Your prepared enquiry' }).evaluate(el => el === document.activeElement), 'Prepared enquiry receives keyboard focus')
   assert(note.includes('The forever bouquet') && note.includes('Test Visitor') && note.includes('test@example.com'), 'Prepared enquiry includes the chosen creation and visitor details')
   assert(await page.getByText('Nothing has been sent or booked yet.').isVisible(), 'Enquiry result accurately discloses that it has not been sent')
   await page.getByRole('button', { name: 'Copy enquiry', exact: true }).click()
@@ -52,6 +74,7 @@ try {
   await page.getByRole('button', { name: 'Put my enquiry together', exact: true }).click()
   assert((await page.getByRole('textbox', { name: 'Your prepared enquiry' }).inputValue()).includes('6–12 people'), 'Workshop enquiry includes the selected group size')
   await page.keyboard.press('Escape')
+  assert(await page.getByRole('button', { name: 'Find your creative side', exact: true }).evaluate(el => el === document.activeElement), 'Closing workshop enquiry restores focus to its trigger')
   await page.getByRole('button', { name: 'Can I ask for something in my favourite colours?' }).click()
   assert(await page.locator('#faq-answer-1').isVisible() && !await page.locator('#faq-answer-0').isVisible(), 'FAQ answers expand and collapse correctly')
   await page.getByRole('button', { name: 'Play motion', exact: true }).click()
@@ -59,18 +82,35 @@ try {
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click()
   await page.evaluate(() => localStorage.setItem('twist-bloom-favourites', '{"corrupt":true}'))
   await page.reload({ waitUntil: 'networkidle' })
-  assert(await page.locator('.product-card').count() === 4, 'Malformed local storage does not break the page')
+  assert(await page.locator('.product-card').count() === 6, 'Malformed local storage does not break the page')
   await page.setViewportSize({ width: 375, height: 900 })
+  await page.getByRole('combobox', { name: 'Show creations', exact: true }).selectOption('Flowerpots')
+  assert(await page.locator('.product-card').count() === 1, 'Mobile category selector filters flowerpots')
+  await page.getByRole('combobox', { name: 'Show creations', exact: true }).selectOption('All creations')
   await page.getByRole('button', { name: 'Open navigation', exact: true }).click()
   assert(await page.getByRole('navigation', { name: 'Mobile navigation', exact: true }).isVisible(), 'Mobile navigation opens')
+  await page.getByRole('navigation', { name: 'Mobile navigation', exact: true }).getByRole('link', { name: 'Our story', exact: true }).focus()
+  await page.keyboard.press('Escape')
+  assert(await page.getByRole('button', { name: 'Open navigation', exact: true }).evaluate(el => el === document.activeElement), 'Escape returns mobile menu focus to its toggle')
+  await page.getByRole('button', { name: 'Open navigation', exact: true }).click()
   await page.getByRole('navigation', { name: 'Mobile navigation', exact: true }).getByRole('link', { name: 'Workshops', exact: true }).click()
   assert(await page.locator('#mobile-nav').count() === 0 && new URL(page.url()).hash === '#workshops', 'Mobile navigation closes after visiting the selected section')
   await page.evaluate(() => localStorage.removeItem('twist-bloom-favourites'))
 
+  const fallbackPage = await context.newPage()
+  await fallbackPage.addInitScript(() => {
+    const nativeContext = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (type, ...args) { return String(type).includes('webgl') ? null : nativeContext.call(this, type, ...args) }
+  })
+  await fallbackPage.goto(baseURL, { waitUntil: 'networkidle' })
+  await fallbackPage.locator('.bouquet-render[data-fallback="true"]').waitFor()
+  assert(await fallbackPage.locator('.bouquet-fallback').isVisible() && await fallbackPage.locator('.bouquet-fallback').evaluate(img => img.naturalWidth > 0), 'Static bouquet remains visible when WebGL is unavailable')
+  await fallbackPage.close()
+
   if (process.argv.includes('--capture')) {
     mkdirSync('.impeccable/review', { recursive: true })
-    for (const width of [1440, 320, 375, 414, 768]) {
-      await page.setViewportSize({ width, height: width === 1440 ? 1000 : 900 })
+    for (const width of [1440, 1280, 320, 375, 414, 768]) {
+      await page.setViewportSize({ width, height: width === 1440 ? 1000 : width === 1280 ? 800 : 900 })
       await page.goto(baseURL, { waitUntil: 'networkidle' })
       await page.evaluate(async () => {
         await document.fonts.ready
@@ -86,6 +126,7 @@ try {
       const filename = width === 1440 ? 'desktop' : width === 375 ? 'mobile' : `user-${width}`
       await page.screenshot({ path: `.impeccable/review/${filename}.png`, fullPage: true, animations: 'disabled' })
       if (width === 1440) await page.screenshot({ path: '.impeccable/review/desktop-hero.png', animations: 'disabled' })
+      if (width === 1280) await page.screenshot({ path: '.impeccable/review/laptop-hero.png', animations: 'disabled' })
     }
   }
   assert(report.errors.length === 0, 'No uncaught browser errors')

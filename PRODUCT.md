@@ -12,7 +12,7 @@ Delegated by the user: React, TypeScript, Vite, and Three.js. A static build can
 
 ## Product Purpose
 
-Introduce a business that makes and sells pipe-cleaner creations and conducts workshops. The user clarified that brand awareness is the primary goal.
+Introduce a business that makes and sells pipe-cleaner creations and conducts workshops. The user clarified that brand awareness is the primary goal. They specifically confirmed flowerpots and flowerpot fridge magnets as products to feature alongside flowers.
 
 ## Users
 
