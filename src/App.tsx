@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Heart, Menu, Minus, MoveUpRight, Pause, Play, Plus, Scissors, X } from 'lucide-react'
-import { creations, faqs, studio, type Creation } from './content'
+import { creations, faqs, studio, studioMedia, type Creation } from './content'
 import EnquiryDialog, { type Enquiry } from './components/EnquiryDialog'
 import type { BouquetPalette } from './lib/craft'
 
 const BouquetScene = lazy(() => import('./components/BouquetScene'))
-const categories = ['All creations', 'Flowers', 'Flowerpots', 'Fridge magnets', 'Keychains', 'Little joys']
+const categories = ['All creations', ...new Set(creations.map(creation => creation.category))]
 
 function Flower({ className = '', petals = 6 }: { className?: string; petals?: number }) {
   return <svg className={className} viewBox="0 0 80 80" fill="none" aria-hidden="true">{Array.from({ length: petals }, (_, i) => <ellipse key={i} cx="40" cy="23" rx="12" ry="21" fill="currentColor" transform={`rotate(${i * 360 / petals} 40 40)`} />)}<circle cx="40" cy="40" r="10" fill="var(--color-yellow)" /></svg>
@@ -13,6 +13,8 @@ function Flower({ className = '', petals = 6 }: { className?: string; petals?: n
 
 function ProductDialog({ product, onClose, onEnquire }: { product: Creation; onClose: () => void; onEnquire: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const [showVideo, setShowVideo] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
   useLayoutEffect(() => {
     const el = ref.current!
     const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -23,8 +25,16 @@ function ProductDialog({ product, onClose, onEnquire }: { product: Creation; onC
   }, [])
   return <dialog className="product-dialog" ref={ref} onCancel={onClose} onClick={e => { const r = e.currentTarget.getBoundingClientRect(); if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) onClose() }} aria-labelledby="product-title">
     <button className="icon-button dialog-close" onClick={onClose} aria-label="Close creation"><X size={21} /></button>
-    <div className={`product-dialog-image surface-${product.color}`}><img src={product.image} alt={product.name} width="800" height="900" /></div>
-    <div className="product-dialog-copy"><h2 id="product-title">{product.name}</h2><p>{product.story}</p><span className="handmade-note"><Heart size={16} /> Handmade, one happy twist at a time.</span><button className="button button-dark" onClick={onEnquire}>Make it my own <ArrowUpRight size={18} /></button><p className="form-note">An illustrated idea from our little world. Details and pricing are confirmed with the studio.</p></div>
+    <div className={`product-dialog-media surface-${product.color}`}>
+      <div className="product-dialog-image">
+        {showVideo && product.video && !videoFailed
+          ? <video src={product.video} poster={product.image} controls playsInline muted preload="metadata" width="478" height="850" aria-label={`Video of ${product.name}`} onError={() => { setVideoFailed(true); setShowVideo(false) }} />
+          : <img src={product.image} alt={product.imageAlt} width="960" height="1280" />}
+      </div>
+      {product.video && <div className="product-media-options" role="group" aria-label="Creation photos and video"><button aria-pressed={!showVideo} onClick={() => setShowVideo(false)}>Photo</button><button aria-pressed={showVideo} disabled={videoFailed} onClick={() => setShowVideo(true)}><Play size={14} />Watch video</button></div>}
+      {videoFailed && <p className="media-error" role="status">The clip couldn’t load. You can still explore the photo.</p>}
+    </div>
+    <div className="product-dialog-copy"><h2 id="product-title">{product.name}</h2><p>{product.story}</p><span className="handmade-note"><Heart size={16} /> Handmade, one happy twist at a time.</span><button className="button button-dark" onClick={onEnquire}>Make it my own <ArrowUpRight size={18} /></button><p className="form-note">A handmade piece from our little world. Colours, availability, and pricing are confirmed with the studio.</p></div>
   </dialog>
 }
 
@@ -103,23 +113,23 @@ export default function App() {
         <div className="collection-toolbar"><div className="collection-filters" role="group" aria-label="Filter creations">{categories.map(item => <button key={item} className={filter === item ? 'active' : ''} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><label className="mobile-collection-filter"><span className="sr-only">Show creations</span><select value={filter} onChange={e => setFilter(e.target.value)}>{[...categories, 'Saved'].map(item => <option key={item} value={item}>{item === 'Saved' ? 'My favourites' : item}</option>)}</select></label><button ref={savedFilter} className={`saved-filter ${filter === 'Saved' ? 'active' : ''}`} onClick={() => setFilter(filter === 'Saved' ? 'All creations' : 'Saved')} aria-pressed={filter === 'Saved'}><Heart size={16} /><span>Saved{saved.length > 0 && ` (${saved.length})`}</span></button></div>
         <div className="product-grid" aria-live="polite">
           {visible.map((p, i) => <article className="product-card" key={p.id} style={{ '--card-index': i } as React.CSSProperties}>
-            <div className={`product-image surface-${p.color}`}><button className="product-image-button" onClick={() => setSelected(p)} aria-label={`Explore ${p.name}`}><img src={p.image} alt={p.name} width="800" height="900" loading="lazy" /><span className="product-explore">Take a closer look <ArrowUpRight size={15} /></span></button><button className={`favorite-button ${saved.includes(p.id) ? 'is-saved' : ''}`} onClick={() => favorite(p)} aria-label={`${saved.includes(p.id) ? 'Unsave' : 'Save'} ${p.name}`} aria-pressed={saved.includes(p.id)}><Heart size={18} /></button>{p.id === 'bouquet' && <span className="product-tag">A forever kind of flower</span>}</div>
+            <div className={`product-image surface-${p.color}`}><button className="product-image-button" onClick={() => setSelected(p)} aria-label={`Explore ${p.name}`}><img src={p.image} alt={p.imageAlt} width="960" height="1280" loading="lazy" /><span className="product-explore">Take a closer look <ArrowUpRight size={15} /></span></button><button className={`favorite-button ${saved.includes(p.id) ? 'is-saved' : ''}`} onClick={() => favorite(p)} aria-label={`${saved.includes(p.id) ? 'Unsave' : 'Save'} ${p.name}`} aria-pressed={saved.includes(p.id)}><Heart size={18} /></button></div>
             <div className="product-title-row"><button onClick={() => setSelected(p)}><h3>{p.name}</h3></button><button className="product-arrow" onClick={() => setSelected(p)} aria-label={`View ${p.name}`}><ArrowUpRight size={19} /></button></div><p>{p.description}</p>
           </article>)}
           {!visible.length && <div className="empty-saved"><Heart size={28} /><h3>A little space for your favourites.</h3><p>Tap a heart on a creation to keep it here.</p><button className="text-link" onClick={() => setFilter('All creations')}>Explore all creations <ArrowRight size={16} /></button></div>}
         </div>
         <div className="collection-footer"><span>Something only you could dream up?</span><button className="text-link" onClick={() => setEnquiry({ kind: 'creation' })}>Let’s make it personal <MoveUpRight size={16} /></button></div>
-        <p className="collection-note">Illustrated creation ideas. Your piece, colours, and details are made personal with the studio.</p>
+        <p className="collection-note">Photographed by the studio. Open a creation to see it in motion, then make it personal with us.</p>
       </section>
 
       <section id="story" className="story section-wrap" aria-labelledby="story-title">
-        <div className="story-art"><div className="story-photo"><img src="/images/story.webp" alt="A close-up of soft pink pipe-cleaner petals, green stems, and a sunshine-yellow flower centre" width="1000" height="1100" loading="lazy" /><span className="story-photo-caption">a little patience + a lot of heart</span></div><div className="story-sticker"><Scissors size={23} /><span>less scrolling.<br />more creating.</span></div></div>
+        <div className="story-art"><div className="story-photo"><img src={studioMedia.story} alt="A hand holding a little brown pot of handmade pale pink pipe-cleaner daisies" width="960" height="1280" loading="lazy" /><span className="story-photo-caption">a little patience + a lot of heart</span></div><div className="story-sticker"><Scissors size={23} /><span>less scrolling.<br />more creating.</span></div></div>
         <div className="story-copy"><h2 id="story-title">Just a pipe cleaner.<br />Until it <span className="accent-word">isn’t.</span></h2><p className="story-lede">A bend. A loop. A “what if?”<br />That’s where the good stuff begins.</p><p>There’s something lovely about making something with your hands. Taking an ordinary little thing and turning it into a gift, a keepsake, a reason to smile.</p><p>That’s our little world at Twist & Bloom. We make things slowly, with a playful spirit and a whole lot of heart. Because joy doesn’t have to be complicated.</p><div className="story-signoff"><Flower /><span>Small things. Made to mean something.</span></div></div>
       </section>
 
       <section id="workshops" className="workshops" aria-labelledby="workshop-title"><div className="workshop-inner section-wrap">
         <div className="workshop-copy"><h2 id="workshop-title">Your hands.<br />A little <span>magic.</span></h2><p>Step away from the everyday. Pick a colour, learn a twist, and watch something wonderful take shape.</p><p>Our pipe-cleaner workshops bring people together through the simple joy of making. Come with an idea. Leave with something that feels like you.</p><button className="button button-dark" onClick={() => setEnquiry({ kind: 'workshop' })}>Find your creative side <ArrowUpRight size={19} /></button><span className="workshop-small">For curious minds & hands that want to make.</span></div>
-        <div className="workshop-art"><img src="/images/workshop.webp" alt="A colourful arrangement of handmade-style tulips, daisies, and a tiny bunny ready to inspire a creative workshop" width="1100" height="1000" loading="lazy" /><div className="workshop-label"><Flower /><span>oh, you<br /><strong>made</strong> that!</span></div><span className="workshop-art-caption">Your next “look what I made” moment.</span></div>
+        <div className="workshop-art"><img src={studioMedia.workshop} alt="A handmade pot of blue pipe-cleaner daisies, an idea to inspire your own creation" width="960" height="1280" loading="lazy" /><div className="workshop-label"><Flower /><span>oh, you<br /><strong>made</strong> that!</span></div><span className="workshop-art-caption">Your next “look what I made” moment.</span></div>
         <div className="workshop-steps"><div><span className="step-number">01</span><div><h3>Pick your happy colours</h3><p>There’s no wrong combination.</p></div></div><div><span className="step-number">02</span><div><h3>Find your little rhythm</h3><p>One bend, loop, and twist at a time.</p></div></div><div><span className="step-number">03</span><div><h3>Make a memory</h3><p>And something lovely to go with it.</p></div></div></div>
       </div></section>
 

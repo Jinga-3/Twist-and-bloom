@@ -163,7 +163,7 @@ section { scroll-margin-top: 32px; }
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 38px 24px; min-height: 350px; }
 .product-card { min-width: 0; animation: card-in .45s var(--ease) backwards; animation-delay: calc(var(--card-index) * 45ms); }
 @keyframes card-in { from { opacity: .5; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-.product-image { aspect-ratio: 1/1.05; border-radius: 12px; position: relative; overflow: clip; }
+.product-image { aspect-ratio: 3/4; border-radius: 12px; position: relative; overflow: clip; }
 .surface-pink { background: var(--color-pink-surface); }
 .surface-yellow { background: var(--color-yellow-surface); }
 .surface-lavender { background: var(--color-lavender-surface); }
@@ -177,7 +177,6 @@ section { scroll-margin-top: 32px; }
 .favorite-button:hover { transform: scale(1.12); color: var(--color-pink-dark); }
 .favorite-button.is-saved { color: var(--color-pink-dark); }
 .favorite-button.is-saved svg { fill: var(--color-pink-soft); }
-.product-tag { position: absolute; left: 12px; top: 15px; font-size: 8px; border-bottom: 1px solid var(--color-pink-dark); color: var(--color-pink-dark); padding-bottom: 2px; pointer-events: none; }
 .product-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 15px; }
 .product-title-row > button:first-child { text-align: left; padding: 0; }
 .product-title-row h3 { font-weight: 500; font-size: 18px; letter-spacing: -.025em; line-height: 1.25; }
@@ -196,7 +195,7 @@ section { scroll-margin-top: 32px; }
 .story-art { position: relative; padding: 0 16px 15px 0; }
 .story-photo { background: var(--color-pink-surface); border-radius: 120px 12px 12px 12px; overflow: clip; aspect-ratio: 1/1.03; transform: rotate(-2deg); position: relative; }
 .story-photo > img { width: 100%; height: 100%; object-fit: cover; }
-.story-photo-caption { position: absolute; bottom: 22px; left: 18px; max-width: 65%; font-size: 10px; color: var(--color-ink); }
+.story-photo-caption { position: absolute; bottom: 22px; left: 18px; max-width: 65%; font-size: 10px; color: var(--color-ink); background: var(--color-paper-light); padding: 8px 12px; border-radius: 3px; }
 .story-sticker { background: var(--color-green-surface); color: var(--color-footer-ink); padding: 17px 18px; width: 137px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; position: absolute; right: -15px; bottom: -4px; transform: rotate(8deg); box-shadow: 0 5px 12px var(--color-shadow); }
 .story-sticker span { font-family: var(--font-display); font-size: 16px; line-height: 1.2; text-align: center; }
 .story-copy h2 { font-size: clamp(38px, 3.5vw, 52px); }
@@ -218,13 +217,13 @@ section { scroll-margin-top: 32px; }
 .workshop-copy .button { margin-top: 28px; }
 .workshop-small { display: block; margin-top: 13px; font-size: 9px; }
 .workshop-art { position: relative; min-width: 0; aspect-ratio: 1/1; background: var(--color-yellow-surface); border-radius: 46% 46% 8px 8px; transform: rotate(3deg); }
-.workshop-art > img { width: 111%; max-width: none; height: 105%; object-fit: contain; position: absolute; left: -6%; top: -6%; }
+.workshop-art > img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: inherit; }
 .workshop-label { position: absolute; bottom: 23%; right: -15px; width: 114px; height: 114px; background: var(--color-lavender); border-radius: 50%; color: var(--color-ink); transform: rotate(-13deg); display: flex; align-items: center; justify-content: center; }
 .workshop-label > svg { position: absolute; width: 120%; height: 120%; color: var(--color-lavender); }
 .workshop-label circle { fill: var(--color-lavender); }
 .workshop-label > span { position: relative; font-family: var(--font-display); font-size: 23px; line-height: 1.05; text-align: center; }
 .workshop-label strong { font-weight: 600; }
-.workshop-art-caption { position: absolute; bottom: 24px; left: 0; right: 0; text-align: center; font-size: 10px; }
+.workshop-art-caption { position: absolute; bottom: 24px; left: 20px; right: 20px; text-align: center; font-size: 10px; background: var(--color-paper-light); padding: 8px 12px; border-radius: 3px; }
 .workshop-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-column: 1/-1; gap: 36px; border-top: 1px solid var(--color-pink); padding-top: 27px; margin-top: 16px; }
 .workshop-steps > div { display: flex; gap: 15px; align-items: center; }
 .step-number { font-family: var(--font-display); font-size: 27px; color: var(--color-pink-dark); font-weight: 400; line-height: 1; }
@@ -276,8 +275,14 @@ dialog[open] { animation: dialog-in .35s var(--ease); }
 .dialog-close { position: absolute; right: 12px; top: 12px; z-index: 5; background: var(--color-paper-light); }
 .product-dialog { width: min(860px, calc(100% - 40px)); overflow-y: auto; }
 .product-dialog[open] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.product-dialog-image { min-height: 490px; display: flex; align-items: center; }
-.product-dialog-image img { width: 100%; height: 100%; object-fit: contain; }
+.product-dialog-media { min-width: 0; align-self: start; }
+.product-dialog-image { aspect-ratio: 3/4; display: flex; align-items: center; }
+.product-dialog-image img, .product-dialog-image video { display: block; width: 100%; height: 100%; object-fit: contain; }
+.product-media-options { display: flex; justify-content: center; gap: 8px; padding: 12px; }
+.product-media-options button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 16px; font-size: 12px; border-radius: 5px; }
+.product-media-options button:hover { background: var(--color-paper-light); }
+.product-media-options button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-paper-light); }
+.media-error { font-size: 12px; padding: 0 16px 16px; text-align: center; }
 .product-dialog-copy { padding: 61px 35px 40px; }
 .product-dialog h2 { font-size: 39px; margin-block: 0 20px; }
 .product-dialog-copy > p:not(.form-note) { font-size: 13px; line-height: 1.85; color: var(--color-muted); }
@@ -319,7 +324,6 @@ textarea { resize: vertical; min-height: 105px; }
   .product-grid { gap: 15px; }
   .product-title-row h3 { font-size: 16px; }
   .product-card > p { font-size: 12px; }
-  .product-tag { max-width: 120px; font-size: 7px; }
   .story { gap: 66px; }
   .story-copy h2 { font-size: 38px; }
   .workshop-inner { gap: 36px 42px; }
@@ -359,10 +363,8 @@ textarea { resize: vertical; min-height: 105px; }
   .section-intro p { font-size: 11px; }
   .section-intro > span { font-size: 9px; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 18px; }
-  .product-image { aspect-ratio: 4/4.5; }
   .product-title-row h3 { font-size: 19px; }
   .product-card > p { font-size: 12px; }
-  .product-tag { max-width: none; font-size: 8px; }
   .story { gap: 40px; }
   .story-copy h2 { font-size: 34px; }
   .story-lede { font-size: 17px; margin-block: 20px 15px; }
@@ -444,11 +446,10 @@ textarea { resize: vertical; min-height: 105px; }
   .saved-filter { font-size: 10px; padding-left: 3px; }
   .saved-filter svg { width: 14px; height: 14px; }
   .product-grid { gap: 25px 12px; min-height: 230px; }
-  .product-image { border-radius: 8px; aspect-ratio: 4/5; }
+  .product-image { border-radius: 8px; }
   .product-image img { object-fit: cover; }
   .favorite-button { height: 31px; width: 31px; top: 7px; right: 7px; }
   .favorite-button svg { height: 15px; width: 15px; }
-  .product-tag { font-size: 6px; left: 9px; top: auto; bottom: 12px; }
   .product-title-row { margin-top: 12px; gap: 0; align-items: start; }
   .product-title-row h3 { font-size: 16px; line-height: 1.2; padding-right: 3px; }
   .product-arrow { width: 22px; height: 24px; }
@@ -508,7 +509,7 @@ textarea { resize: vertical; min-height: 105px; }
   .copyright { font-size: 8px; }
   .product-dialog { width: calc(100% - 30px); }
   .product-dialog[open] { display: block; }
-  .product-dialog-image { min-height: 0; height: 285px; }
+  .product-dialog-image { aspect-ratio: auto; height: min(48dvh, 380px); }
   .product-dialog-copy { padding: 27px 25px; }
   .product-dialog h2 { font-size: 33px; }
   .product-dialog-copy > p:not(.form-note) { font-size: 12px; }
