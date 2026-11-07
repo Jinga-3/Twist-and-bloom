@@ -24,6 +24,7 @@ const entries = [
   { name: 'tulips', type: 'tulips', width: 800, height: 900, camera: [0, 0.6, 9.5], target: [0, 0.12, 0], rotation: [0.06, -0.12, -0.14] },
   { name: 'flowerpot', type: 'flowerpot', width: 800, height: 900, camera: [0, 0.8, 8.8], target: [0, 0.23, 0], rotation: [0.015, -0.17, -0.045] },
   { name: 'magnet', type: 'magnet', width: 800, height: 900, camera: [0, 0.65, 8.4], target: [0, 0.11, 0], rotation: [0.015, -0.32, 0.08] },
+  { name: 'keychain', type: 'keychain', width: 800, height: 900, camera: [0, 0.4, 7.9], target: [0, 0.2, 0], rotation: [0.025, -0.12, -0.18] },
   { name: 'story', type: 'bouquet', width: 1000, height: 1100, camera: [0.4, 1.1, 4.8], target: [0, 0.98, 0], rotation: [-0.07, 0.18, -0.21] },
   { name: 'workshop', type: 'workshop', width: 1100, height: 1000, camera: [0, 1.0, 10.6], target: [0, 0.1, 0], rotation: [0, 0, 0] },
 ]

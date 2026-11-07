@@ -245,6 +245,26 @@ export function makeCreation(type: string) {
       tube(detail, [v(0, 0), v(direction * 0.05, -0.12), v(direction * 0.13, -0.23)], 0.026, craftColors.cream, 500)
     }
     group.add(detail)
+  } else if (type === 'keychain') {
+    daisy(group, 0, -0.56, 0, craftColors.pink, 1.3)
+    // Smooth silver hardware contrasts with the soft chenille charm.
+    const silver = new THREE.MeshStandardMaterial({ color: '#c3c9d2', metalness: 0.72, roughness: 0.24 })
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.045, 12, 80), silver)
+    ring.position.set(0.12, 1.47, 0)
+    ring.rotation.y = -0.14
+    group.add(ring)
+    // A second turn makes the split keyring recognizable at card size.
+    const split = new THREE.Mesh(new THREE.TorusGeometry(0.51, 0.034, 12, 80, Math.PI * 1.85), silver)
+    split.position.set(0.12, 1.47, 0.065)
+    split.rotation.set(0, -0.14, 0.4)
+    group.add(split)
+    for (let i = 0; i < 4; i++) {
+      const link = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.024, 10, 32), silver)
+      link.position.set(0.04 + i * 0.024, 0.39 + i * 0.17, 0)
+      link.scale.y = 1.35
+      link.rotation.y = i % 2 ? 0.95 : -0.2
+      group.add(link)
+    }
   } else if (type === 'bunny') {
     ball(group, v(0, -0.6, 0), v(0.64, 0.83, 0.52), craftColors.cream)
     ball(group, v(0, 0.36, 0.08), v(0.74, 0.66, 0.6), craftColors.cream)

@@ -5,7 +5,7 @@ import EnquiryDialog, { type Enquiry } from './components/EnquiryDialog'
 import type { BouquetPalette } from './lib/craft'
 
 const BouquetScene = lazy(() => import('./components/BouquetScene'))
-const categories = ['All creations', 'Flowers', 'Flowerpots', 'Fridge magnets', 'Little joys']
+const categories = ['All creations', 'Flowers', 'Flowerpots', 'Fridge magnets', 'Keychains', 'Little joys']
 
 function Flower({ className = '', petals = 6 }: { className?: string; petals?: number }) {
   return <svg className={className} viewBox="0 0 80 80" fill="none" aria-hidden="true">{Array.from({ length: petals }, (_, i) => <ellipse key={i} cx="40" cy="23" rx="12" ry="21" fill="currentColor" transform={`rotate(${i * 360 / petals} 40 40)`} />)}<circle cx="40" cy="40" r="10" fill="var(--color-yellow)" /></svg>
@@ -80,7 +80,7 @@ export default function App() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <h1 id="hero-title">Little things.<br />Big happy<br /><span>feelings<svg className="feeling-underline" viewBox="0 0 390 20" aria-hidden="true"><path d="M5 12C98 1 277 1 382 8M48 18C162 10 291 11 356 14" /></svg>.</span></h1>
-          <p>Flowers, flowerpots, and little fridge magnets.<br className="desktop-break" /> All made from a fuzzy stem and a happy thought.<br className="desktop-break" /> A little handmade happiness, just for you.</p>
+          <p>Flowers, flowerpots, fridge magnets, and keychains.<br className="desktop-break" /> All made from a fuzzy stem and a happy thought.<br className="desktop-break" /> A little handmade happiness, just for you.</p>
           <a className="button button-dark hero-cta" href="#creations">Explore our little world <ArrowUpRight size={19} /></a>
           <a className="hero-secondary" href="#workshops">Or, come make a little magic with us <ArrowRight size={16} /></a>
           <div className="hero-footnote"><span className="hand-icon"><Heart size={17} /></span>Made by hand. Kept by heart.</div>

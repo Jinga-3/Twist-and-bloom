@@ -9,7 +9,7 @@ export const studio = {
 export type Creation = {
   id: string
   name: string
-  category: 'Flowers' | 'Flowerpots' | 'Fridge magnets' | 'Little joys'
+  category: 'Flowers' | 'Flowerpots' | 'Fridge magnets' | 'Keychains' | 'Little joys'
   description: string
   story: string
   color: string
@@ -36,6 +36,12 @@ export const creations: Creation[] = [
     color: 'green', image: '/images/magnet.webp',
   },
   {
+    id: 'keychain', name: 'The little bloom keychain', category: 'Keychains',
+    description: 'A little flower to take everywhere.',
+    story: 'A soft pipe-cleaner flower on a little keyring, ready to brighten your keys or favourite bag. A small handmade detail that goes wherever you do. Share your favourite colours to explore a keychain that feels like you.',
+    color: 'pink', image: '/images/keychain.webp',
+  },
+  {
     id: 'daisies', name: 'Pocketful of sunshine', category: 'Flowers',
     description: 'Small daisies. Instant good mood.',
     story: 'A little cluster of daisies with sunny centres and wonderfully soft petals. A reminder that the smallest things can make a room feel happier. Use this creation as a starting point for your own handmade idea.',
@@ -56,7 +62,7 @@ export const creations: Creation[] = [
 ]
 
 export const faqs = [
-  { question: 'What are your creations made from?', answer: 'Pipe cleaners! We bend, loop, and shape these soft, fuzzy stems by hand to create flowers, flowerpots, flowerpot fridge magnets, and other cheerful things. Each piece has its own handmade personality.' },
+  { question: 'What are your creations made from?', answer: 'Pipe cleaners! We bend, loop, and shape these soft, fuzzy stems by hand to create flowers, flowerpots, flowerpot fridge magnets, keychains, and other cheerful things. Each piece has its own handmade personality.' },
   { question: 'Can I ask for something in my favourite colours?', answer: 'Yes—start an enquiry and tell us what you have in mind. Share the colours, occasion, or idea you’re thinking of, and we can discuss what’s possible before confirming an order.' },
   { question: 'Do I need experience to join a workshop?', answer: 'You can enquire whether you’re completely new to crafting or already love making things. Tell us who’s joining so we can discuss a workshop that suits your group.' },
   { question: 'How do I find out about prices or workshops?', answer: 'Use “Let’s talk” to put together a product or workshop enquiry. Prices, availability, workshop dates, and location are confirmed directly with the studio before you book or buy.' },
